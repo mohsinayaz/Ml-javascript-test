@@ -121,7 +121,7 @@ function predictPosition() {
 
 function gotResult(error, results) {
   // console.log(results);
-  postureLabel = results[1].label;
+  postureLabel = results[0].label;
   predictPosition();
 }
 
