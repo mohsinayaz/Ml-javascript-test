@@ -58,7 +58,7 @@ async function keyPressed() {
     console.log('collecting');
     state = 'collecting';
 
-    await delay(6000);
+    await delay(10000);
     console.log('not collecting');
     state = 'waiting';
   }
