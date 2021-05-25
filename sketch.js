@@ -21,6 +21,10 @@ let rSlider, gSlider, bSlider;
 let position;
 let state = 'waiting';
 let postureLabel;
+let recording = false;
+let startRecording;
+let stopRecording;
+let mode = 'collecting';
 
 function delay(time) {
   return new Promise((resolve, reject) => {
@@ -32,46 +36,61 @@ function delay(time) {
   });
 }
 
-function trainModel() {
-  brain.normalizeData();
-  let options = {
-    epochs: 10
-  };
-  brain.train(options, finishedTraining);
+
+// this function for collect conrdinates and also set posture values
+function start() {
+  startRecording.classList.add('disable');
+  startRecording.disabled = true;
+  stopRecording.classList.remove('disable');
+  stopRecording.disabled = false;
+  let selectTag = document.getElementById('postures');
+  position = selectTag.value;
+  state = 'collecting';
+  console.log('collecting');
 }
 
-async function keyPressed() {
-  if (key == 's') {
-    brain.saveData();
-  } else if (key == 't') {
-    trainModel();
-  } else if (key == 'd') {
-    if (position) {
-      position = "right position";
-    } else {
-      position = "wrong position";
-    }
+// this function is for stop collecting conrdinates
+function stop() {
+  stopRecording.classList.add('disable');
+  stopRecording.disabled = true;
+  startRecording.classList.remove('disable');
+  startRecording.disabled = false;
+  state = 'waiting';
+  console.log('not collecting');
+}
 
-    console.log(position);
+// this function is for save the postures into json file
 
-    await delay(3000);
-    console.log('collecting');
-    state = 'collecting';
+function saveData() {
+  brain.saveData('postures');
+}
 
-    await delay(10000);
-    console.log('not collecting');
-    state = 'waiting';
-  }
+// this function is for export the model files which is created by json file
+function exportData() {
+  brain.loadData('postures.json', trainModel);
+}
+
+// this function is for priview the results
+function preview() {
+  mode = 'preview';
+  setup();
+  let buttonsSection = document.getElementsByClassName('container');
+  buttonsSection[0].style.display = 'none';
 }
 
 function setup() {
+  
+  startRecording = document.getElementById('start');
+  stopRecording = document.getElementById('stop');
+  
+  
   createCanvas(640, 480);
-
+  
   video = createCapture(VIDEO);
-  video.hide();
+  video.remove();
   poseNet = ml5.poseNet(video, modelLoaded);
   poseNet.on('pose', gotPoses);
-
+  
   let options = {
     inputs: 34,
     outputs: 2,
@@ -79,19 +98,23 @@ function setup() {
     debug: true
   };
   brain = ml5.neuralNetwork(options);
-
-  // brain.loadData('postures.json', dataReady);
-
-  const modelInfo = {
-    model: 'model/model.json',
-    metadata: 'model/model_meta.json',
-    weights: 'model/model.weights.bin',
-  };
-  brain.load(modelInfo, brainLoaded);
+  
+  if (mode === 'preview') {
+    const modelInfo = {                    
+      model: 'model/model.json',
+      metadata: 'model/model_meta.json',
+      weights: 'model/model.weights.bin',
+    };
+    brain.load(modelInfo, brainLoaded);
+  }
 }
 
-function dataReady() {
-  trainModel();
+function trainModel() {
+  brain.normalizeData();
+  let options = {
+    epochs: 50
+  };
+  brain.train(options, finishedTraining);
 }
 
 function brainLoaded() {
@@ -101,7 +124,7 @@ function brainLoaded() {
 
 function finishedTraining() {
   brain.save();
-  predictPosition();
+  // predictPosition();
 }
 
 function predictPosition() {
@@ -120,7 +143,6 @@ function predictPosition() {
 }
 
 function gotResult(error, results) {
-  // console.log(results);
   postureLabel = results[0].label;
   predictPosition();
 }
@@ -146,6 +168,7 @@ function gotPoses(poses) {
 function modelLoaded() {
   console.log('poseNet ready');
 }
+
 
 function draw() {
   push();
@@ -174,7 +197,7 @@ function draw() {
 
   fill(255,0,255);
   noStroke();
-  textSize(100);
+  textSize(90);
   textAlign(CENTER, CENTER);
   text(postureLabel, width / 2, height / 2);
 }

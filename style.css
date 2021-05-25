@@ -1,0 +1,45 @@
+body {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+    margin: 0px;
+}
+
+.container {
+    display: flex;
+    padding: 10px 0px;
+    order: 2;
+}
+
+.btn {
+    background-color: #0563af;
+    color: white;
+    padding: 10px;
+    margin: 0px 10px;
+
+}
+.disable {
+    background-color: grey;
+}
+
+.box select {
+background-color: #0563af;
+color: white;
+padding: 12px;
+border: none;
+box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+-webkit-appearance: button;
+appearance: button;
+outline: none;
+}
+
+.box:hover::before {
+color: rgba(255, 255, 255, 0.6);
+background-color: rgba(255, 255, 255, 0.2);
+}
+
+.box select option {
+padding: 30px;
+}
