@@ -84,10 +84,11 @@ function setup() {
   stopRecording = document.getElementById('stop');
   
   
-  createCanvas(640, 480);
+  createCanvas(300, 300);
   
   video = createCapture(VIDEO);
   video.remove();
+  video.size(300, 300);
   poseNet = ml5.poseNet(video, modelLoaded);
   poseNet.on('pose', gotPoses);
   
@@ -195,9 +196,13 @@ function draw() {
   }
   pop();
 
-  fill(255,0,255);
-  noStroke();
-  textSize(90);
-  textAlign(CENTER, CENTER);
-  text(postureLabel, width / 2, height / 2);
+ if (postureLabel) {
+   const postureName = document.querySelector('.posture-name');
+   if (postureLabel === "right position") {
+     postureName.style.color = "#5cb85c";
+   } else {
+     postureName.style.color = '#d9534f';
+   }
+   postureName.innerHTML = postureLabel;
+ }
 }
